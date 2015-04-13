@@ -14,9 +14,8 @@
 
 int main() 
 {
-	freopen("server1.txt", "r", stdin);
+	freopen("client2.txt", "r", stdin);
 
-	std::cout << "Server1" << std::endl;
-
+	std::cout << "Client2" << std::endl;
 	return 0;
 }
