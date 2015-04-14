@@ -32,8 +32,6 @@ int main()
 	// save the file input into a map
 	std::map<std::string, std::string> keymap;
 	mapInputFile(ifile, &keymap);
-	outputTest(keymap);
-
 
 
 	// std::map<std::string, std::string>::iterator it;

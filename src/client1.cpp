@@ -38,7 +38,6 @@ int main()
 	// std::string input, search, key;
 	std::map<std::string, std::string> keymap;
 	mapInputFile(ifile, &keymap);
-	outputTest(keymap);
 
 
 	/**

@@ -11,6 +11,7 @@ void mapInputFile(std::ifstream&, std::map<std::string, std::string>*);
 void error(const char*);
 void outputTest(std::map<std::string, std::string>);
 
+
 /**
  *  Start Code
  */
