@@ -2,6 +2,9 @@ CXX=g++
 CXXFLAGS=-g -Wall 
 SUNFLAGS= -lsocket -lnsl -lresolv
 
+# source code folders
+SRC= src
+
 # Uncomment for parser DEBUG
 #DEFS=-DDEBUG
 
@@ -15,27 +18,27 @@ all: server1 server2 server3 client1 client2
 	./client2
 
 # SERVER 1  ============================================
-server1: server1.cpp
-	$(CXX) -o server1 server1.cpp $(SUNFLAGS)
+server1: $(SRC)/server1.cpp $(SRC)/server_util.h
+	$(CXX) -o server1 $(SRC)/server1.cpp $(SUNFLAGS)
 
 
 # SERVER 2  ============================================
-server2: server2.cpp
-	$(CXX) -o server2 server2.cpp $(SUNFLAGS)
+server2: $(SRC)/server2.cpp $(SRC)/server_util.h
+	$(CXX) -o server2 $(SRC)/server2.cpp $(SUNFLAGS)
 
 
 # SERVER 3  ============================================
-server3: server3.cpp
-	$(CXX) -o server3 server3.cpp $(SUNFLAGS)
+server3: $(SRC)/server3.cpp $(SRC)/server_util.h
+	$(CXX) -o server3 $(SRC)/server3.cpp $(SUNFLAGS)
 
 
 # CLIENT 1  ============================================
-client1: client1.cpp
-	$(CXX) -o client1 client1.cpp $(SUNFLAGS)
+client1: $(SRC)/client1.cpp $(SRC)/client_util.h
+	$(CXX) -o client1 $(SRC)/client1.cpp $(SUNFLAGS)
 
 # CLIENT 2  ============================================
-client2: client2.cpp
-	$(CXX) -o client2 client2.cpp $(SUNFLAGS)
+client2: $(SRC)/client2.cpp $(SRC)/client_util.h
+	$(CXX) -o client2 $(SRC)/client2.cpp $(SUNFLAGS)
 
 
 clean:

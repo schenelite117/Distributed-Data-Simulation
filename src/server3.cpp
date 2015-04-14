@@ -10,12 +10,18 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 
-#include <iostream>
+#include "server_util.h"
 
 int main() 
 {
-	freopen("server3.txt", "r", stdin);
+	std::ifstream ifile;
+	ifile.open("input_files/server3.txt");
 
-	std::cout << "Server3" << std::endl;
+	// assume that the file input is well-formed and there are no invalid inputs in the file
+	// save the file input into a map
+	std::map<std::string, std::string> keymap;
+	mapInputFile(ifile, &keymap);
+	outputTest(keymap);
+	
 	return 0;
 }

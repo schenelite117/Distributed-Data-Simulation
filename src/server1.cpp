@@ -10,13 +10,27 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 
-#include <iostream>
+#include "server_util.h"
 
 int main() 
 {
-	freopen("server1.txt", "r", stdin);
+	std::ifstream ifile;
+	ifile.open("input_files/server1.txt");
 
-	std::cout << "Server1" << std::endl;
+	// assume that the file input is well-formed and there are no invalid inputs in the file
+	// save the file input into a map
+	std::map<std::string, std::string> keymap;
+	mapInputFile(ifile, &keymap);
+	outputTest(keymap);
+	
+	/**
+	 * @brief This socket starter code was taken out of the Beej's tutorial
+	 */
+	struct addrinfo hints, *servInfo;
+	memset (&hints, 0, sizeof hints); // zero the hints struct
+
+	hints.ai_family = AF_INET; //IPv4
+	hints.ai_socktype = SOCK_STREAM; // TCP	
 
 	return 0;
 }
