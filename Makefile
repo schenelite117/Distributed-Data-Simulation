@@ -18,18 +18,18 @@ all: server1 server2 server3 client1 client2
 	# ./client2
 
 # SERVER 1  ============================================
-server1: $(SRC)/server1.cpp $(SRC)/server_util.h
-	$(CXX) -o server1 $(SRC)/server1.cpp $(SUNFLAGS)
+server1: $(SRC)/dhtserver1.cpp $(SRC)/server_util.h
+	$(CXX) -o server1 $(SRC)/dhtserver1.cpp $(SUNFLAGS)
 
 
 # SERVER 2  ============================================
-server2: $(SRC)/server2.cpp $(SRC)/server_util.h
-	$(CXX) -o server2 $(SRC)/server2.cpp $(SUNFLAGS)
+server2: $(SRC)/dhtserver2.cpp $(SRC)/server_util.h
+	$(CXX) -o server2 $(SRC)/dhtserver2.cpp $(SUNFLAGS)
 
 
 # SERVER 3  ============================================
-server3: $(SRC)/server3.cpp $(SRC)/server_util.h
-	$(CXX) -o server3 $(SRC)/server3.cpp $(SUNFLAGS)
+server3: $(SRC)/dhtserver3.cpp $(SRC)/server_util.h
+	$(CXX) -o server3 $(SRC)/dhtserver3.cpp $(SUNFLAGS)
 
 
 # CLIENT 1  ============================================

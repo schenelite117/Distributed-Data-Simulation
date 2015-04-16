@@ -1,3 +1,13 @@
+/**
+ * By: Stephen Chen
+ * EE450 Computer Networks: Socket Programming Project
+ * DHT Server 1
+ * 
+ * --Start Server 1 code to be able to listen for client calls
+ * and return values paired with the keys sent. Also can communicate
+ * with Servers 2 and 3 to obtain any values that is not in server1.txt
+ */
+
 #include <stdlib.h>
 #include <cstdio>
 #include <unistd.h>
@@ -13,7 +23,7 @@
 #include "server_util.h"
 
 /** All the defines **/
-#define LISTEN_PORT "21000063" // port client hosts will be connecting to
+#define LISTEN_PORT "21063" // port client hosts will be connecting to
 #define BACKLOG 10
 
 
@@ -46,9 +56,8 @@ int main()
 
 	hints.ai_family = AF_INET; //IPv4
 	hints.ai_socktype = SOCK_DGRAM; // UDP
-	hints.ai_flags = AI_PASSIVE;
 
-	int status = getaddrinfo(NULL, LISTEN_PORT, &hints, &servinfo);
+	int status = getaddrinfo("nunki.usc.edu", LISTEN_PORT, &hints, &servinfo);
 
 	// if there's an error with getaddrinfo
 	if (status != 0)
@@ -61,8 +70,18 @@ int main()
 	 * @ end of code from Beej's tutorial
 	 */
 
-	// create the socket file descriptor
-	listClientSock = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
+	// walk through linked list to make sure that there is a valid address info 
+	for (addrinfo* p = servinfo; p != NULL; p = p->ai_next) 
+	{
+		// create the socket file descriptor
+		listClientSock = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
+
+		if (listClientSock != -1) 
+		{
+			break; // if found a valid socket, break
+		}
+
+	}
 
 	// allow to reuse the active port if no one else is listening on that port
 	// also obtained from Beej's tutorial
@@ -72,9 +91,10 @@ int main()
 		perror("setsockopt");
 		exit(EXIT_FAILURE);
 	}
+	
 
 	// bind the socket
-	bind(listClientSock, servinfo->ai_addr, servinfo->ai_addrlen);
+	int b_status = bind(listClientSock, servinfo->ai_addr, servinfo->ai_addrlen);
 	
 	// listen for incoming communications
 	listen(listClientSock, BACKLOG);

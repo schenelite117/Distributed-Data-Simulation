@@ -50,10 +50,10 @@ int main()
 	hints.ai_socktype = SOCK_DGRAM; // UDP	
 
 	std::string input = userInput(keymap);
-
+	std::string keyvalue = keymap.find(input);
 
 	// outputs linked list of sockaddr structures that can create a socket from and outputs to servInfo
-	int status = getaddrinfo(serverIPaddress (string), servertcpport (string), &hints, &servInfo);
+	int status = getaddrinfo("nunki.usc.edu", servertcpport (string), &hints, &servInfo);
 
 	// loop through linked list 
 	// declare integer for socket file descriptor

@@ -41,6 +41,7 @@ int main()
 	hints.ai_socktype = SOCK_DGRAM; // UDP
 
 	std::string input = userInput(keymap); 
+	std::string keyvalue = keymap.find(input);
 
 	return 0;
 }
