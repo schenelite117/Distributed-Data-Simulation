@@ -35,68 +35,105 @@ int main()
 	std::map<std::string, std::string> keymap;
 	mapInputFile(ifile, &keymap);
 	
-	/**
+/**
 	 * @brief This socket starter code was taken out of the Beej's tutorial
-	 * This creates the static TCP socket for server 3
+	 * This creates the static UDP socket for server 1
 	 */
 	struct addrinfo hints, *servinfo; // for listen() socket
 	struct sockaddr_storage clientAddr; // for accept() socket
+	struct sigaction sa; // for removing zombie processes
 	socklen_t clientAddrSize;
 
 	/** socket file descriptors **/
 	int listClientSock; // to bind to listen() socket
 	int newSock; // accept() socket for send() and recv()
 
+	char yes = '1';
 
-	memset (&hints, 0, sizeof hints); // zero the hints struct
+
+	// zero the hints struct
+	memset (&hints, 0, sizeof hints); 
 
 	hints.ai_family = AF_INET; //IPv4
-	hints.ai_socktype = SOCK_STREAM; // TCP
+	hints.ai_socktype = SOCK_DGRAM; // UDP
 
 	int status = getaddrinfo("nunki.usc.edu", LISTEN_PORT, &hints, &servinfo);
 
+	// if there's an error with getaddrinfo it will return non-zero value
 	if (status != 0)
 	{
 		fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(status));
-		exit(EXIT_FAILURE);
+		return 1;
 	}
-	/**
-	 * @ brief end of code from Beej's tutorial
-	 */
+	
 
-	for (addrinfo* p = servinfo; p != NULL; p = p->ai_next) 
+	// walk through linked list to make sure that there is a valid address info 
+	addrinfo* p;
+	for (p = servinfo; p != NULL; p = p->ai_next) 
 	{
 		// create the socket file descriptor
 		listClientSock = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
 
-		if (listClientSock != -1) 
+		if ((listClientSock = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol)) == -1) 
 		{
-			break; // if found a valid socket, break
+			perror("server: socket");
+			continue; // if invalid socket, keep looping
 		}
+
+		// allow to reuse the active port if no one else is listening on that port
+		
+		if (setsockopt(listClientSock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(char)) == -1)
+		{
+			perror("setsockopt");
+			exit(EXIT_FAILURE);
+		}
+	
+
+		// bind the socket
+		if (bind(listClientSock, servinfo->ai_addr, servinfo->ai_addrlen) == -1)
+		{
+			close(sockfd);
+			perror("server: bind");
+			continue;
+		}
+		
+		break;
 
 	}
 
-	
-	// allow to reuse the active port if no one else is listening on that port
-	// also obtained from Beej's tutorial
-	char yes = '1';
-	if (setsockopt(listClientSock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(char)) == -1)
+	if (p == NULL) 
 	{
-		perror("setsockopt");
+		fprintf(stderr, "server: failed to bind\n", );
+		return 2;
+	}
+	freeaddrinfo(servinfo);
+	
+
+	// listen for incoming communications
+	if (listen(listClientSock, BACKLOG) == -1)
+	{
+		perror("listen");
 		exit(EXIT_FAILURE);
 	}
 
-	// bind the socket
-	bind(listClientSock, servinfo->ai_addr, servinfo->ai_addrlen);
-	
-	// listen for incoming communications
-	listen(listClientSock, BACKLOG);
+
+	// sigaction is to destroy all zombie processes just in case I want to fork() later
+	sa.sa_handler = sigchld_handler;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_RESTART;
+	if (sigaction(SIGCHLD, &sa, NULL) == -1)
+	{
+		perror("sigaction");
+		exit(1);
+	}
+
+	/**
+	 * @ end of code from Beej's tutorial
+	 */
 
 	// accept any incoming connections and return a new socket file descriptor to send() and recv()
 	clientAddrSize = sizeof clientAddr;
 	newSock = accept(listClientSock, (struct sockaddr *)& clientAddr, &clientAddrSize);
-
-	freeaddrinfo(servinfo);
 
 	return 0;
 }

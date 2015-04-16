@@ -23,6 +23,8 @@
 
 #include "client_util.h"
 
+#define MAXDATASIZE 100 // max number of bytes we can get at once
+
 
 /**
  * Start Main
@@ -43,7 +45,11 @@ int main()
 	/**
 	 * @brief This socket starter code was taken out of the Beej's tutorial
 	 */
+	int cSock, numbytes;
+	char buf[MAXDATASIZE];
 	struct addrinfo hints, *servInfo;
+
+	
 	memset (&hints, 0, sizeof hints); // zero the hints struct
 
 	hints.ai_family = AF_INET; //IPv4

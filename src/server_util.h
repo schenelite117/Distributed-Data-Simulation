@@ -10,6 +10,7 @@
 void mapInputFile(std::ifstream&, std::map<std::string, std::string>*);
 void error(const char*);
 void outputTest(std::map<std::string, std::string>);
+void *get_in_addr(struct sockaddr*);
 
 
 /**
@@ -42,11 +43,20 @@ void outputTest(std::map<std::string, std::string> keymap)
 
 }
 
-void error(const char* msg)
+/**
+ * copied from Beej's tutorial
+ */
+// get sockaddr, IPv4
+void *get_in_addr(struct sockaddr *sa)
 {
-	std::cerr << msg << std::endl;
-	exit(EXIT_FAILURE);
+	if (sa->sa_family == AF_INET)
+	{
+		return &(((struct sockaddr_in*)sa)->sin_addr);
+	}
 }
+/**
+ * end copied from Beej's tutorial
+ */
 
 
 #endif

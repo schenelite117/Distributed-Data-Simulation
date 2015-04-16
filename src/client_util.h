@@ -11,6 +11,7 @@ void mapInputFile(std::ifstream&, std::map<std::string, std::string>*);
 void error(const char*);
 void outputTest(std::map<std::string, std::string>);
 std::string userInput();
+void *get_in_addr(struct sockaddr*);
 
 /**
  *  Start Code
@@ -64,5 +65,20 @@ std::string userInput(std::map<std::string, std::string>& keymap)
 	} while (keymap.find(input) == keymap.end());
 
 }
+
+/**
+ * copied from Beej's tutorial
+ */
+// get sockaddr, IPv4
+void *get_in_addr(struct sockaddr *sa)
+{
+	if (sa->sa_family == AF_INET)
+	{
+		return &(((struct sockaddr_in*)sa)->sin_addr);
+	}
+}
+/**
+ * end copied from Beej's tutorial
+ */
 
 #endif
