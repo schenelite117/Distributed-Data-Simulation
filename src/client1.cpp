@@ -37,7 +37,7 @@ int main()
 	// save the file input into a map
 	// std::string input, search, key;
 	std::map<std::string, std::string> keymap;
-	mapInputFile(ifile, &keymap);
+	mapInputFile(ifile, keymap);
 
 
 	/**
@@ -49,9 +49,11 @@ int main()
 	hints.ai_family = AF_INET; //IPv4
 	hints.ai_socktype = SOCK_DGRAM; // UDP	
 
+	std::string input = userInput(keymap);
+
 
 	// outputs linked list of sockaddr structures that can create a socket from and outputs to servInfo
-	// int status = getaddrinfo(serverIPaddress (string), servertcpport (string), &hints, &servInfo);
+	int status = getaddrinfo(serverIPaddress (string), servertcpport (string), &hints, &servInfo);
 
 	// loop through linked list 
 	// declare integer for socket file descriptor

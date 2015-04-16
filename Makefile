@@ -11,11 +11,11 @@ SRC= src
 #OBJS=server1.o
 
 all: server1 server2 server3 client1 client2
-	./server1
-	./server2
-	./server3
+	# ./server1
+	# ./server2
+	# ./server3
 	./client1
-	./client2
+	# ./client2
 
 # SERVER 1  ============================================
 server1: $(SRC)/server1.cpp $(SRC)/server_util.h

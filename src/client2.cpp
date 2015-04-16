@@ -31,16 +31,7 @@ int main()
 	// assume that the file input is well-formed and there are no invalid inputs in the file
 	// save the file input into a map
 	std::map<std::string, std::string> keymap;
-	mapInputFile(ifile, &keymap);
-
-
-	// std::map<std::string, std::string>::iterator it;
-	// std::cout << "Printing Contents" << std::endl;
-	// std::cout << keymap.size() << std::endl;
-	// for (it = keymap.begin(); it != keymap.end(); ++it)
-	// {
-	// 	std::cout << it->first << " " << it->second << std::endl;
-	// }
+	mapInputFile(ifile, keymap);
 
 
 	addrinfo hints, *servInfo;
@@ -48,6 +39,8 @@ int main()
 
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_DGRAM; // UDP
+
+	std::string input = userInput(keymap); 
 
 	return 0;
 }
