@@ -46,8 +46,9 @@ int main()
 	struct addrinfo servHints, *serverinfo; // for dynamic TCP socket
 	struct sockaddr_storage newSockAddr; // for accept() socket
 	struct sockaddr clientAddr; // for storing client info socket
+	struct sockaddr_in myAddr;
 	struct sigaction sa; // for removing zombie processes
-	socklen_t clientAddrSize, newSockAddrSize;
+	socklen_t clientAddrSize, newSockAddrSize, myAddrSize;
 
 	/** socket file descriptors **/
 	int listClientSock; // to bind to listen() socket
@@ -162,7 +163,8 @@ int main()
 		clientAddrSize = sizeof(clientAddr);
 		recv(newSock, buf, BUF_LEN, 0);
 
-		std::cout << buf << std::endl;
+		std::cout << "\nThe Server 2 has received a request " << buf << " from the Server 1 with port number ";
+		std::cout << ntohs(newSockAddr.sin_port) << " and\nIP address " << inet_ntoa(newSockAddr.sin_addr) << std::endl;
 
 		std::string key (buf);
 		key.erase(key.begin(), key.begin()+4); //erase the GET message in front
@@ -182,6 +184,9 @@ int main()
 				}
 				msg_length -= sent;
 			} while(msg_length > 0);
+
+			std::cout << "The Server 2 sends the reply " << value << " to the Server 1 with port number ";
+			std::cout << ntohs(s->sin_port) << " and\nIP address " << inet_ntoa(s->sin_addr) << std::endl;
 		} 
 		else 
 		{
@@ -248,6 +253,17 @@ int main()
 				msg_length -= sent;
 			} while(msg_length > 0);
 
+			// send to server 3
+			stat = getsockname(servSock, (struct sockaddr *)&myAddr, &myAddrSize);
+			if (stat == -1)
+			{
+				perror("getsockname");
+				exit(EXIT_FAILURE);
+			}
+			s = (struct sockaddr_in *)serverinfo->ai_addr;
+			std::cout << "The Server 2 sends the request " << fwKey << " to the Server 3.\nThe TCP port number is ";
+			std::cout << ntohs(s->sin_port) << " and IP address " << inet_ntoa(s->sin_addr) << std::endl;
+
 			freeaddrinfo(serverinfo);
 
 			// recv response from server 2 then return response to client
@@ -257,9 +273,13 @@ int main()
 			}
 			clientAddrSize = sizeof(clientAddr);
 			recv(servSock, buf, BUF_LEN, 0);
-			
-			std::cout << buf << std::endl;
 			std::string val(buf);
+
+
+			s = (struct sockaddr_in *)&clientAddr;
+			std::cout << "The Server 2 has received the value " << val << " from the Server 3 with port number ";
+			std::cout << ntohs(myAddr.sin_port) << " and\nIP address " << inet_ntoa(s->sin_addr) << std::endl;
+
 			val.erase(val.begin(), val.begin()+5); // Erase the POST message in front
 
 			// save an entry into the map
@@ -271,7 +291,7 @@ int main()
 			do {
 				if ((sent = send(newSock, buf, msg_length, 0))==-1) 
 				{
-		    		perror("server: static TCP socket send");
+		    		perror("server: dyn TCP socket send");
 		    		break;
 				}
 				msg_length -= sent;

@@ -153,7 +153,7 @@ int main()
 
 		val.erase(val.begin(), val.begin()+5); // Erase the POST message in front
 
-		std::cout << "The requested value is " << val << std::endl;
+		std::cout << "The requested value is " << val << "\n" << std::endl;
 	}
 
 	freeaddrinfo(servinfo);

@@ -48,8 +48,10 @@ int main()
 	struct addrinfo hints, *servinfo; // for static UDP socket
 	struct addrinfo servHints, *serverinfo; // for dynamic TCP socket
 	struct sockaddr clientAddr; // for storing client info socket
+	struct sockaddr_in myAddr;
 	struct sigaction sa; // for removing zombie processes
 	socklen_t clientAddrSize;
+	socklen_t myAddrSize;
 
 	/** socket file descriptors **/
 	int listClientSock; // to bind to recvfrom() socket
@@ -150,7 +152,7 @@ int main()
 		clientAddrSize = sizeof(clientAddr);
 		recvfrom(listClientSock, buf, BUF_LEN, 0, &clientAddr, &clientAddrSize);
 		s = (struct sockaddr_in *)&clientAddr;
-		std::cout << "The Server 1 has received a request " << buf << " from Client " << counter << " with port number ";
+		std::cout << "\nThe Server 1 has received a request " << buf << " from Client " << counter << " with port number ";
 		std::cout << ntohs(s->sin_port) << " and\nIP address " << inet_ntoa(s->sin_addr) << std::endl;
 
 		std::string key (buf);
@@ -205,14 +207,6 @@ int main()
 					continue; // if invalid socket, keep looping
 				}
 
-				// allow to reuse the active port if no one else is listening on that port
-				
-				if (setsockopt(listClientSock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
-				{
-					perror("setsockopt");
-					exit(EXIT_FAILURE);
-				}
-			
 
 				// connect the socket
 				if (connect(servSock, serverinfo->ai_addr, serverinfo->ai_addrlen) == -1)
@@ -251,6 +245,16 @@ int main()
 				msg_length -= sent;
 			} while(msg_length > 0);
 
+			// send to server 2
+			stat = getsockname(servSock, (struct sockaddr *)&myAddr, &myAddrSize);
+			if (stat == -1)
+			{
+				perror("getsockname");
+				exit(EXIT_FAILURE);
+			}
+			std::cout << "The Server 1 sends the request " << fwKey << " to the Server 2.\nThe TCP port number is ";
+			std::cout << ntohs(myAddr.sin_port) << " and IP address " << inet_ntoa(s->sin_addr) << std::endl;
+
 			freeaddrinfo(serverinfo);
 
 			// recv response from server 2 then return response to client
@@ -261,9 +265,12 @@ int main()
 			clientAddrSize = sizeof(clientAddr);
 			recv(servSock, buf, BUF_LEN, 0);
 
+			s = (struct sockaddr_in *)serverinfo->ai_addr;
+			std::cout << "The Server 1 has received the value " << buf << " from the Server 2 with port number ";
+			std::cout << ntohs(s->sin_port) << " and\nIP address " << inet_ntoa(s->sin_addr) << std::endl;
+
 			close(servSock); // close the connection with server 2
-			
-			std::cout << buf << std::endl;
+
 			std::string val(buf);
 			val.erase(val.begin(), val.begin()+5); // Erase the POST message in front
 
@@ -281,6 +288,9 @@ int main()
 				}
 				msg_length -= sent;
 			} while(msg_length > 0);
+			s = (struct sockaddr_in *)&clientAddr;
+			std::cout << "The Server 1 sends the reply " << buf << " to Client " << counter << " with port number ";
+			std::cout << ntohs(s->sin_port) << " and\nIP address " << inet_ntoa(s->sin_addr) << std::endl;
 		}
 		counter++;
 	}
