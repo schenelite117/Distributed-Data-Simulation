@@ -58,7 +58,7 @@ std::string userInput(std::map<std::string, std::string>& keymap)
 {
 	std::string input;
 	do {
-		std::cout << "Please Enter Your Search:  ";
+		std::cout << "Please Enter Your Search (USC, UCLA, etc.):  ";
 		std::cin >> input;
 
 	} while (keymap.find(input) == keymap.end() && input != "0");
