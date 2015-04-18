@@ -43,8 +43,14 @@ int main()
 	 */
 	int cSock, numbytes;
 	struct addrinfo hints, *servinfo;
-	struct sockaddr servAddr; // for storing server info socket
+	struct sockaddr_in servAddr; // for storing server info socket
+	struct sockaddr_in myAddr;
+	
+	struct in_addr** serverIP; // getting server's IP 
+	struct hostent* servhost; // server host info
+
 	socklen_t servAddrSize;
+	socklen_t myAddrSize;
 
 
 	memset (&hints, 0, sizeof hints); // zero the hints struct
@@ -79,8 +85,6 @@ int main()
 		fprintf(stderr, "client: failed to connect\n");
 		return 2;
 	}
-
-
 	/**
 	 * @ end of code from Beej's tutorial
 	 */
@@ -106,10 +110,25 @@ int main()
 			}
 			msg_length -= sent;
 		} while(msg_length > 0);
-		std::cout << "The Client 2 sends the request " << input << " to the Server 1 with port number " << std::endl;
+		std::cout << "The Client 2 sends the request " << input << " to the Server 1 with port number " << SERVER_PORT;
+	
+		// get the host info
+		if ((servhost = gethostbyname("nunki.usc.edu")) == NULL) {  
+        	herror("gethostbyname");
+        	return 2;
+    	}
+		serverIP = (struct in_addr **)servhost->h_addr_list;
+		std::cout << " and\nIP address " << inet_ntoa(*serverIP[0]) << std::endl;
 
-		// length remaining should be set to the string length that
-		// recv(socket descriptor int, receive buffer, how long is the buffer, flags) - returns how many bytes were received
+		// get client's info
+		int stat = getsockname(cSock, (struct sockaddr *)&myAddr, &myAddrSize);
+		if (stat == -1)
+		{
+			perror("getsockname");
+			exit(EXIT_FAILURE);
+		}
+		std::cout << "The Client2's port number is " << ntohs(myAddr.sin_port);
+		std::cout << " and the IP address is " << inet_ntoa(myAddr.sin_addr) << std::endl;
 
 		char buf[MAXDATASIZE];
 		for (int i = 0; i < MAXDATASIZE; i++) 
@@ -118,9 +137,16 @@ int main()
 		}
 
 		servAddrSize = sizeof(servAddr);
-		recvfrom(cSock, buf, MAXDATASIZE, 0, &servAddr, &servAddrSize);
-
+		recvfrom(cSock, buf, MAXDATASIZE, 0, (struct sockaddr *)&servAddr, &servAddrSize);
 		std::string val(buf);
+
+		// screen messages after receiving the reply
+		std::cout << "The Client 2 received the value " << val << " from the Server 1 with port number ";
+		std::cout << ntohs(servAddr.sin_port) << " and\nIP address " << inet_ntoa(servAddr.sin_addr) << std::endl;
+
+		std::cout << "The Client2's port number is " << ntohs(myAddr.sin_port);
+		std::cout << " and the IP address is " << inet_ntoa(myAddr.sin_addr) << std::endl;
+
 		val.erase(val.begin(), val.begin()+5); // Erase the POST message in front
 
 		std::cout << "The requested value is " << val << std::endl;

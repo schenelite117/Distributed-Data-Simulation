@@ -146,7 +146,7 @@ int main()
 
 		// screen messages after receiving the reply
 		std::cout << "The Client 1 received the value " << val << " from the Server 1 with port number ";
-		std::cout << ntohs(servAddr.sin_port) << " and\nIP address is " << inet_ntoa(servAddr.sin_addr) << std::endl;
+		std::cout << ntohs(servAddr.sin_port) << " and\nIP address " << inet_ntoa(servAddr.sin_addr) << std::endl;
 
 		std::cout << "The Client1's port number is " << ntohs(myAddr.sin_port);
 		std::cout << " and the IP address is " << inet_ntoa(myAddr.sin_addr) << std::endl;
