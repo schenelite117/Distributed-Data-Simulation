@@ -121,10 +121,6 @@ int main()
 
 	std::cout << "The requested value is " << val << std::endl;
 
-	// zero out receive buffer and receive blocks execution
-	// close sockets
-	//
-	// UDP main difference is you don't need to connect, use sendto(same 4 as tcp, p->addr, p->ai_addrlen) and recvfrom()
 	freeaddrinfo(servinfo);
 	close(cSock);
 

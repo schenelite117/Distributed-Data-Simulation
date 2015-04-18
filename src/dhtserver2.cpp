@@ -25,6 +25,7 @@
 
 #define LISTEN_PORT "22063" // port client hosts will be connecting to
 #define BACKLOG 10
+#define BUF_LEN 100
 
 int main() 
 {
@@ -56,7 +57,7 @@ int main()
 	memset (&hints, 0, sizeof hints); 
 
 	hints.ai_family = AF_INET; //IPv4
-	hints.ai_socktype = SOCK_DGRAM; // UDP
+	hints.ai_socktype = SOCK_STREAM; // UDP
 
 	int status = getaddrinfo("nunki.usc.edu", LISTEN_PORT, &hints, &servinfo);
 
@@ -81,11 +82,11 @@ int main()
 
 		// allow to reuse the active port if no one else is listening on that port
 		
-		if (setsockopt(listClientSock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(char)) == -1)
-		{
-			perror("setsockopt");
-			exit(EXIT_FAILURE);
-		}
+		// if (setsockopt(listClientSock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(char)) == -1)
+		// {
+		// 	perror("setsockopt");
+		// 	exit(EXIT_FAILURE);
+		// }
 	
 
 		// bind the socket
@@ -133,6 +134,43 @@ int main()
 	// accept any incoming connections and return a new socket file descriptor to send() and recv()
 	clientAddrSize = sizeof clientAddr;
 	newSock = accept(listClientSock, (struct sockaddr *)& clientAddr, &clientAddrSize);
+	if (newSock == -1)
+	{
+		perror("accept");
+	}
+
+	// recv from server 1 after accepting
+	char buf[BUF_LEN];
+	for (int i = 0; i < BUF_LEN; i++) 
+	{
+		buf[i] = '\0'; // overwrite buffer with all null characters
+	}
+
+	clientAddrSize = sizeof(clientAddr);
+	recv(newSock, buf, BUF_LEN, 0);
+
+	std::string key (buf);
+	key.erase(key.begin(), key.begin()+4); //erase the GET message in front
+
+	// if can find the key in server 2
+	if (keymap.find(key) != keymap.end())
+	{
+		std::string value = "POST " + keymap.find(key)->second;
+		const char* keyvalue = value.c_str();
+		int msg_length = strlen(keyvalue);
+		int sent = 0;
+		do {
+			if ((sent = send(newSock, keyvalue, msg_length, 0))==-1) 
+			{
+	    		perror("server: static TCP socket send");
+	    		break;
+			}
+			msg_length -= sent;
+		} while(msg_length > 0);
+	}
+
+	close(newSock);
+	close(listClientSock);
 
 	return 0;
 }
