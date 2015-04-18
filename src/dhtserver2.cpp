@@ -24,6 +24,7 @@
 #include "server_util.h"
 
 #define LISTEN_PORT "22063" // port client hosts will be connecting to
+#define SERV_PORT "23063" // port to connect to server 3
 #define BACKLOG 10
 #define BUF_LEN 100
 
@@ -42,22 +43,29 @@ int main()
 	 * This creates the static UDP socket for server 1
 	 */
 	struct addrinfo hints, *servinfo; // for listen() socket
-	struct sockaddr_storage clientAddr; // for accept() socket
+	struct addrinfo servHints, *serverinfo; // for dynamic TCP socket
+	struct sockaddr_storage newSockAddr; // for accept() socket
+	struct sockaddr clientAddr; // for storing client info socket
 	struct sigaction sa; // for removing zombie processes
-	socklen_t clientAddrSize;
+	socklen_t clientAddrSize, newSockAddrSize;
 
 	/** socket file descriptors **/
 	int listClientSock; // to bind to listen() socket
 	int newSock; // accept() socket for send() and recv()
+	int servSock; // TCP socket to connect to server 3
 
-	char yes = '1';
+	int yes = 1;
 
 
 	// zero the hints struct
 	memset (&hints, 0, sizeof hints); 
+	memset (&servHints, 0, sizeof servHints);
 
 	hints.ai_family = AF_INET; //IPv4
 	hints.ai_socktype = SOCK_STREAM; // UDP
+
+	servHints.ai_family = AF_INET;
+	servHints.ai_socktype = SOCK_STREAM; // TCP
 
 	int status = getaddrinfo("nunki.usc.edu", LISTEN_PORT, &hints, &servinfo);
 
@@ -82,11 +90,11 @@ int main()
 
 		// allow to reuse the active port if no one else is listening on that port
 		
-		// if (setsockopt(listClientSock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(char)) == -1)
-		// {
-		// 	perror("setsockopt");
-		// 	exit(EXIT_FAILURE);
-		// }
+		if (setsockopt(listClientSock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
+		{
+			perror("setsockopt");
+			exit(EXIT_FAILURE);
+		}
 	
 
 		// bind the socket
@@ -132,8 +140,8 @@ int main()
 	 */
 
 	// accept any incoming connections and return a new socket file descriptor to send() and recv()
-	clientAddrSize = sizeof clientAddr;
-	newSock = accept(listClientSock, (struct sockaddr *)& clientAddr, &clientAddrSize);
+	newSockAddrSize = sizeof newSockAddr;
+	newSock = accept(listClientSock, (struct sockaddr *)& newSockAddr, &newSockAddrSize);
 	if (newSock == -1)
 	{
 		perror("accept");
@@ -149,6 +157,8 @@ int main()
 	clientAddrSize = sizeof(clientAddr);
 	recv(newSock, buf, BUF_LEN, 0);
 
+	std::cout << buf << std::endl;
+
 	std::string key (buf);
 	key.erase(key.begin(), key.begin()+4); //erase the GET message in front
 
@@ -161,6 +171,94 @@ int main()
 		int sent = 0;
 		do {
 			if ((sent = send(newSock, keyvalue, msg_length, 0))==-1) 
+			{
+	    		perror("server: static TCP socket send");
+	    		break;
+			}
+			msg_length -= sent;
+		} while(msg_length > 0);
+	} 
+	else 
+	{
+		/**
+	 	* @brief This socket starter code was taken out of the Beej's tutorial
+	 	* This creates the TCP socket for server 2
+	 	*/
+		int stat = getaddrinfo("nunki.usc.edu", SERV_PORT, &servHints, &serverinfo);
+
+		// if there's an error with getaddrinfo it will return non-zero value
+		if (stat != 0)
+		{
+			fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(stat));
+			return 1;
+		}
+		
+
+		// walk through linked list to make sure that there is a valid address info 
+		addrinfo* p2;
+		for (p2 = serverinfo; p2 != NULL; p2 = p2->ai_next) 
+		{
+			// create the socket file descriptor
+			// connect to the first socket description available
+			if ((servSock = socket(p2->ai_family, p2->ai_socktype, p2->ai_protocol)) == -1) 
+			{
+				perror("server: TCP socket");
+				continue; // if invalid socket, keep looping
+			}
+		
+
+			// connect the socket
+			if (connect(servSock, serverinfo->ai_addr, serverinfo->ai_addrlen) == -1)
+			{
+				close(servSock);
+				perror("server: TCP socket connect");
+				continue;
+			}
+			break;
+		}
+
+		if (p == NULL) 
+		{
+			fprintf(stderr, "server: TCP socket failed to connect\n");
+			return 2;
+		}
+
+		/**
+	 	* @ end of code from Beej's tutorial
+	 	*/
+
+		// forwarding GET request to server 2
+		std::string fwKey = "GET " + key;
+		const char* keyvalue = fwKey.c_str() + '\0';
+
+		int msg_length = strlen(keyvalue);
+		int sent = 0;
+
+		do {
+			if ((sent = send(servSock, keyvalue, msg_length, 0))==-1) 
+			{
+	    		perror("server: TCP socket send");
+	    		break;
+			}
+			msg_length -= sent;
+		} while(msg_length > 0);
+
+		freeaddrinfo(serverinfo);
+
+		// recv response from server 2 then return response to client
+		for (int i = 0; i < BUF_LEN; i++) 
+		{
+			buf[i] = '\0'; // overwrite buffer with all null characters
+		}
+		clientAddrSize = sizeof(clientAddr);
+		recv(servSock, buf, BUF_LEN, 0);
+		
+		std::cout << buf << std::endl;
+		// relay back to client
+		msg_length = strlen(buf);
+		sent = 0;
+		do {
+			if ((sent = send(newSock, buf, msg_length, 0))==-1) 
 			{
 	    		perror("server: static TCP socket send");
 	    		break;

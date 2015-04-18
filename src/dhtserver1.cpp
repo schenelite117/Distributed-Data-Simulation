@@ -55,7 +55,7 @@ int main()
 	int listClientSock; // to bind to recvfrom() socket
 	int servSock; // TCP connection to server 2
 
-	char yes = '1';
+	int yes = 1;
 
 
 	// zero the hints struct
@@ -92,11 +92,11 @@ int main()
 
 		// allow to reuse the active port if no one else is listening on that port
 		
-		// if (setsockopt(listClientSock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(char)) == -1)
-		// {
-		// 	perror("setsockopt");
-		// 	exit(EXIT_FAILURE);
-		// }
+		if (setsockopt(listClientSock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
+		{
+			perror("setsockopt");
+			exit(EXIT_FAILURE);
+		}
 	
 
 		// bind the socket
@@ -160,7 +160,9 @@ int main()
 			}
 			msg_length -= sent;
 		} while(msg_length > 0);
-	} else { // check server 2 using a TCP connection
+	} 
+	else // check server 2 using a TCP connection
+	{ 
 
 		/**
 	 	* @brief This socket starter code was taken out of the Beej's tutorial
@@ -190,11 +192,11 @@ int main()
 
 			// allow to reuse the active port if no one else is listening on that port
 			
-			// if (setsockopt(listClientSock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(char)) == -1)
-			// {
-			// 	perror("setsockopt");
-			// 	exit(EXIT_FAILURE);
-			// }
+			if (setsockopt(listClientSock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
+			{
+				perror("setsockopt");
+				exit(EXIT_FAILURE);
+			}
 		
 
 			// connect the socket
@@ -233,7 +235,7 @@ int main()
 			msg_length -= sent;
 		} while(msg_length > 0);
 
-		freeaddrinfo(servinfo);
+		freeaddrinfo(serverinfo);
 
 		// recv response from server 2 then return response to client
 		for (int i = 0; i < BUF_LEN; i++) 
@@ -241,8 +243,9 @@ int main()
 			buf[i] = '\0'; // overwrite buffer with all null characters
 		}
 		clientAddrSize = sizeof(clientAddr);
-		recv(listClientSock, buf, BUF_LEN, 0);
+		recv(servSock, buf, BUF_LEN, 0);
 		
+		std::cout << buf << std::endl;
 		// relay back to client
 		msg_length = strlen(buf);
 		sent = 0;
@@ -255,6 +258,7 @@ int main()
 			msg_length -= sent;
 		} while(msg_length > 0);
 	}
+
 	close(servSock);
 	close(listClientSock);
 	return 0;

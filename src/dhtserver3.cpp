@@ -25,6 +25,7 @@
 
 #define LISTEN_PORT "23063" // port client hosts will be connecting to
 #define BACKLOG 10
+#define BUF_LEN 100
 
 int main() 
 {
@@ -36,7 +37,7 @@ int main()
 	std::map<std::string, std::string> keymap;
 	mapInputFile(ifile, &keymap);
 	
-/**
+	/**
 	 * @brief This socket starter code was taken out of the Beej's tutorial
 	 * This creates the static UDP socket for server 1
 	 */
@@ -49,14 +50,14 @@ int main()
 	int listClientSock; // to bind to listen() socket
 	int newSock; // accept() socket for send() and recv()
 
-	char yes = '1';
+	int yes = 1;
 
 
 	// zero the hints struct
 	memset (&hints, 0, sizeof hints); 
 
 	hints.ai_family = AF_INET; //IPv4
-	hints.ai_socktype = SOCK_DGRAM; // UDP
+	hints.ai_socktype = SOCK_STREAM; // TCP
 
 	int status = getaddrinfo("nunki.usc.edu", LISTEN_PORT, &hints, &servinfo);
 
@@ -81,7 +82,7 @@ int main()
 
 		// allow to reuse the active port if no one else is listening on that port
 		
-		if (setsockopt(listClientSock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(char)) == -1)
+		if (setsockopt(listClientSock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
 		{
 			perror("setsockopt");
 			exit(EXIT_FAILURE);
@@ -133,6 +134,45 @@ int main()
 	// accept any incoming connections and return a new socket file descriptor to send() and recv()
 	clientAddrSize = sizeof clientAddr;
 	newSock = accept(listClientSock, (struct sockaddr *)& clientAddr, &clientAddrSize);
+	if (newSock == -1)
+	{
+		perror("accept");
+	}
+
+	// recv from server 1 after accepting
+	char buf[BUF_LEN];
+	for (int i = 0; i < BUF_LEN; i++) 
+	{
+		buf[i] = '\0'; // overwrite buffer with all null characters
+	}
+
+	clientAddrSize = sizeof(clientAddr);
+	recv(newSock, buf, BUF_LEN, 0);
+
+	std::cout << buf << std::endl;
+
+	std::string key (buf);
+	key.erase(key.begin(), key.begin()+4); //erase the GET message in front
+	
+	// if can find the key in server 2
+	if (keymap.find(key) != keymap.end())
+	{
+		std::string value = "POST " + keymap.find(key)->second;
+		const char* keyvalue = value.c_str();
+		int msg_length = strlen(keyvalue);
+		int sent = 0;
+		do {
+			if ((sent = send(newSock, keyvalue, msg_length, 0))==-1) 
+			{
+	    		perror("server: static TCP socket send");
+	    		break;
+			}
+			msg_length -= sent;
+		} while(msg_length > 0);
+	}
+
+	close(newSock);
+	close(listClientSock);
 
 	return 0;
 }
