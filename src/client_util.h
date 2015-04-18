@@ -60,9 +60,8 @@ std::string userInput(std::map<std::string, std::string>& keymap)
 	do {
 		std::cout << "Please Enter Your Search:  ";
 		std::cin >> input;
-		if (keymap.find(input) == keymap.end())
-			std::cout << "Try again. Enter a valid search query.\n" << std::endl;
-	} while (keymap.find(input) == keymap.end());
+
+	} while (keymap.find(input) == keymap.end() && input != "0");
 
 	return input;
 }

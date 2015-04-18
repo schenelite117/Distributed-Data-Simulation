@@ -83,43 +83,50 @@ int main()
 		fprintf(stderr, "client: failed to connect\n");
 		return 2;
 	}
-
-
 	/**
 	 * @ end of code from Beej's tutorial
 	 */
-	
-	std::string input = userInput(keymap);
-	input = "GET " + keymap.find(input)->second;
-	const char* keyvalue = input.c_str() + '\0';
-
-	int msg_length = strlen(keyvalue);
-	int sent = 0;
-
-	do {
-		if ((sent = sendto(cSock, keyvalue, msg_length, 0, p->ai_addr,p->ai_addrlen))==-1) 
-		{
-    		perror("client: sendto");
-    		break;
-		}
-		msg_length -= sent;
-	} while(msg_length > 0);
-	// length remaining should be set to the string length that
-	// recv(socket descriptor int, receive buffer, how long is the buffer, flags) - returns how many bytes were received
-
-	char buf[MAXDATASIZE];
-	for (int i = 0; i < MAXDATASIZE; i++) 
+	while (1) 
 	{
-		buf[i] = '\0'; // overwrite buffer with all null characters
+		std::string input = userInput(keymap);
+		if (input == "0")
+			break;
+		std::cout << "The Client 1 has received a request with search word " << input;
+		std::cout << ", which maps to key " << keymap.find(input)->second << "." << std::endl;
+
+		input = "GET " + keymap.find(input)->second;
+		const char* keyvalue = input.c_str() + '\0';
+
+		int msg_length = strlen(keyvalue);
+		int sent = 0;
+
+		do {
+			if ((sent = sendto(cSock, keyvalue, msg_length, 0, p->ai_addr,p->ai_addrlen))==-1) 
+			{
+	    		perror("client: sendto");
+	    		break;
+			}
+			msg_length -= sent;
+		} while(msg_length > 0);
+		std::cout << "The Client 1 sends the request " << input << " to the Server 1 with port number " << std::endl;
+
+		// length remaining should be set to the string length that
+		// recv(socket descriptor int, receive buffer, how long is the buffer, flags) - returns how many bytes were received
+
+		char buf[MAXDATASIZE];
+		for (int i = 0; i < MAXDATASIZE; i++) 
+		{
+			buf[i] = '\0'; // overwrite buffer with all null characters
+		}
+
+		servAddrSize = sizeof(servAddr);
+		recvfrom(cSock, buf, MAXDATASIZE, 0, &servAddr, &servAddrSize);
+
+		std::string val(buf);
+		val.erase(val.begin(), val.begin()+5); // Erase the POST message in front
+
+		std::cout << "The requested value is " << val << std::endl;
 	}
-
-	servAddrSize = sizeof(servAddr);
-	recvfrom(cSock, buf, MAXDATASIZE, 0, &servAddr, &servAddrSize);
-
-	std::string val(buf);
-	val.erase(val.begin(), val.begin()+5); // Erase the POST message in front
-
-	std::cout << "The requested value is " << val << std::endl;
 
 	freeaddrinfo(servinfo);
 	close(cSock);

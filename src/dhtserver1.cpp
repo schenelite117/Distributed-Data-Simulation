@@ -132,134 +132,148 @@ int main()
 	 * @ end of code from Beej's tutorial
 	 */
 
-	// use recvfrom() to receive any incoming connections 
-	char buf[BUF_LEN];
-	for (int i = 0; i < BUF_LEN; i++) 
+	// go into a server loop
+
+	while (1) 
 	{
-		buf[i] = '\0'; // overwrite buffer with all null characters
-	}
-
-	clientAddrSize = sizeof(clientAddr);
-	recvfrom(listClientSock, buf, BUF_LEN, 0, &clientAddr, &clientAddrSize);
-
-	std::string key (buf);
-	key.erase(key.begin(), key.begin()+4); //erase the GET message in front
-
-	// if can find the key in server 1
-	if (keymap.find(key) != keymap.end())
-	{
-		std::string value = "POST " + keymap.find(key)->second;
-		const char* keyvalue = value.c_str();
-		int msg_length = strlen(keyvalue);
-		int sent = 0;
-		do {
-			if ((sent = sendto(listClientSock, keyvalue, msg_length, 0, &clientAddr, clientAddrSize))==-1) 
-			{
-	    		perror("server: static UDP socket sendto");
-	    		break;
-			}
-			msg_length -= sent;
-		} while(msg_length > 0);
-	} 
-	else // check server 2 using a TCP connection
-	{ 
-
-		/**
-	 	* @brief This socket starter code was taken out of the Beej's tutorial
-	 	* This creates the TCP socket for server 1
-	 	*/
-		int stat = getaddrinfo("nunki.usc.edu", SERV_PORT, &servHints, &serverinfo);
-
-		// if there's an error with getaddrinfo it will return non-zero value
-		if (stat != 0)
-		{
-			fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(stat));
-			return 1;
-		}
-		
-
-		// walk through linked list to make sure that there is a valid address info 
-		addrinfo* p2;
-		for (p2 = serverinfo; p2 != NULL; p2 = p2->ai_next) 
-		{
-			// create the socket file descriptor
-			// connect to the first socket description available
-			if ((servSock = socket(p2->ai_family, p2->ai_socktype, p2->ai_protocol)) == -1) 
-			{
-				perror("server: TCP socket");
-				continue; // if invalid socket, keep looping
-			}
-
-			// allow to reuse the active port if no one else is listening on that port
-			
-			if (setsockopt(listClientSock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
-			{
-				perror("setsockopt");
-				exit(EXIT_FAILURE);
-			}
-		
-
-			// connect the socket
-			if (connect(servSock, serverinfo->ai_addr, serverinfo->ai_addrlen) == -1)
-			{
-				close(servSock);
-				perror("server: TCP socket connect");
-				continue;
-			}
-			break;
-		}
-
-		if (p == NULL) 
-		{
-			fprintf(stderr, "server: TCP socket failed to connect\n");
-			return 2;
-		}
-
-		/**
-	 	* @ end of code from Beej's tutorial
-	 	*/
-
-		// forwarding GET request to server 2
-		std::string fwKey = "GET " + key;
-		const char* keyvalue = fwKey.c_str() + '\0';
-
-		int msg_length = strlen(keyvalue);
-		int sent = 0;
-
-		do {
-			if ((sent = send(servSock, keyvalue, msg_length, 0))==-1) 
-			{
-	    		perror("server: TCP socket send");
-	    		break;
-			}
-			msg_length -= sent;
-		} while(msg_length > 0);
-
-		freeaddrinfo(serverinfo);
-
-		// recv response from server 2 then return response to client
+		// use recvfrom() to receive any incoming connections 
+		char buf[BUF_LEN];
 		for (int i = 0; i < BUF_LEN; i++) 
 		{
 			buf[i] = '\0'; // overwrite buffer with all null characters
 		}
+
 		clientAddrSize = sizeof(clientAddr);
-		recv(servSock, buf, BUF_LEN, 0);
-		
-		std::cout << buf << std::endl;
-		// relay back to client
-		msg_length = strlen(buf);
-		sent = 0;
-		do {
-			if ((sent = sendto(listClientSock, buf, msg_length, 0, &clientAddr, clientAddrSize))==-1) 
+		recvfrom(listClientSock, buf, BUF_LEN, 0, &clientAddr, &clientAddrSize);
+
+		std::string key (buf);
+		key.erase(key.begin(), key.begin()+4); //erase the GET message in front
+
+		// if can find the key in server 1
+		if (keymap.find(key) != keymap.end())
+		{
+			std::string value = "POST " + keymap.find(key)->second;
+			const char* keyvalue = value.c_str();
+			int msg_length = strlen(keyvalue);
+			int sent = 0;
+			do {
+				if ((sent = sendto(listClientSock, keyvalue, msg_length, 0, &clientAddr, clientAddrSize))==-1) 
+				{
+		    		perror("server: static UDP socket sendto");
+		    		break;
+				}
+				msg_length -= sent;
+			} while(msg_length > 0);
+		} 
+		else // check server 2 using a TCP connection
+		{ 
+
+			/**
+	 		* @brief This socket starter code was taken out of the Beej's tutorial
+	 		* This creates the TCP socket for server 1
+	 		*/
+			int stat = getaddrinfo("nunki.usc.edu", SERV_PORT, &servHints, &serverinfo);
+
+			// if there's an error with getaddrinfo it will return non-zero value
+			if (stat != 0)
 			{
-	    		perror("server: static UDP socket sendto");
-	    		break;
+				fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(stat));
+				return 1;
 			}
-			msg_length -= sent;
-		} while(msg_length > 0);
+		
+
+			// walk through linked list to make sure that there is a valid address info 
+			addrinfo* p2;
+			for (p2 = serverinfo; p2 != NULL; p2 = p2->ai_next) 
+			{
+				// create the socket file descriptor
+				// connect to the first socket description available
+				if ((servSock = socket(p2->ai_family, p2->ai_socktype, p2->ai_protocol)) == -1) 
+				{
+					perror("server: TCP socket");
+					continue; // if invalid socket, keep looping
+				}
+
+				// allow to reuse the active port if no one else is listening on that port
+				
+				if (setsockopt(listClientSock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
+				{
+					perror("setsockopt");
+					exit(EXIT_FAILURE);
+				}
+			
+
+				// connect the socket
+				if (connect(servSock, serverinfo->ai_addr, serverinfo->ai_addrlen) == -1)
+				{
+					close(servSock);
+					perror("server: TCP socket connect");
+					continue;
+				}
+				break;
+			}
+
+			if (p == NULL) 
+			{
+				fprintf(stderr, "server: TCP socket failed to connect\n");
+				return 2;
+			}
+
+			/**
+	 		* @ end of code from Beej's tutorial
+	 		*/
+
+			// forwarding GET request to server 2
+
+			std::string fwKey = "GET " + key;
+			const char* keyvalue = fwKey.c_str() + '\0';
+
+			int msg_length = strlen(keyvalue);
+			int sent = 0;
+
+			do {
+				if ((sent = send(servSock, keyvalue, msg_length, 0))==-1) 
+				{
+		    		perror("server: TCP socket send");
+		    		break;
+				}
+				msg_length -= sent;
+			} while(msg_length > 0);
+
+			freeaddrinfo(serverinfo);
+
+			// recv response from server 2 then return response to client
+			for (int i = 0; i < BUF_LEN; i++) 
+			{
+				buf[i] = '\0'; // overwrite buffer with all null characters
+			}
+			clientAddrSize = sizeof(clientAddr);
+			recv(servSock, buf, BUF_LEN, 0);
+
+			close(servSock); // close the connection with server 2
+			
+			std::cout << buf << std::endl;
+			std::string val(buf);
+			val.erase(val.begin(), val.begin()+5); // Erase the POST message in front
+
+			// save an entry into the map
+			keymap.insert(std::make_pair(key,val));
+
+			// relay back to client
+			msg_length = strlen(buf);
+			sent = 0;
+			do {
+				if ((sent = sendto(listClientSock, buf, msg_length, 0, &clientAddr, clientAddrSize))==-1) 
+				{
+		    		perror("server: static UDP socket sendto");
+		    		break;
+				}
+				msg_length -= sent;
+			} while(msg_length > 0);
+		}
 	}
 
-	close(servSock);
+
 	close(listClientSock);
 	return 0;
 }

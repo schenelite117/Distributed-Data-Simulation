@@ -130,48 +130,50 @@ int main()
 	/**
 	 * @ end of code from Beej's tutorial
 	 */
-
-	// accept any incoming connections and return a new socket file descriptor to send() and recv()
-	clientAddrSize = sizeof clientAddr;
-	newSock = accept(listClientSock, (struct sockaddr *)& clientAddr, &clientAddrSize);
-	if (newSock == -1)
+	while (1)
 	{
-		perror("accept");
+		// accept any incoming connections and return a new socket file descriptor to send() and recv()
+		clientAddrSize = sizeof clientAddr;
+		newSock = accept(listClientSock, (struct sockaddr *)& clientAddr, &clientAddrSize);
+		if (newSock == -1)
+		{
+			perror("accept");
+		}
+
+		// recv from server 1 after accepting
+		char buf[BUF_LEN];
+		for (int i = 0; i < BUF_LEN; i++) 
+		{
+			buf[i] = '\0'; // overwrite buffer with all null characters
+		}
+
+		clientAddrSize = sizeof(clientAddr);
+		recv(newSock, buf, BUF_LEN, 0);
+
+		std::cout << buf << std::endl;
+
+		std::string key (buf);
+		key.erase(key.begin(), key.begin()+4); //erase the GET message in front
+		
+		// if can find the key in server 2
+		if (keymap.find(key) != keymap.end())
+		{
+			std::string value = "POST " + keymap.find(key)->second;
+			const char* keyvalue = value.c_str();
+			int msg_length = strlen(keyvalue);
+			int sent = 0;
+			do {
+				if ((sent = send(newSock, keyvalue, msg_length, 0))==-1) 
+				{
+		    		perror("server: static TCP socket send");
+		    		break;
+				}
+				msg_length -= sent;
+			} while(msg_length > 0);
+		}
+		close(newSock);
 	}
-
-	// recv from server 1 after accepting
-	char buf[BUF_LEN];
-	for (int i = 0; i < BUF_LEN; i++) 
-	{
-		buf[i] = '\0'; // overwrite buffer with all null characters
-	}
-
-	clientAddrSize = sizeof(clientAddr);
-	recv(newSock, buf, BUF_LEN, 0);
-
-	std::cout << buf << std::endl;
-
-	std::string key (buf);
-	key.erase(key.begin(), key.begin()+4); //erase the GET message in front
 	
-	// if can find the key in server 2
-	if (keymap.find(key) != keymap.end())
-	{
-		std::string value = "POST " + keymap.find(key)->second;
-		const char* keyvalue = value.c_str();
-		int msg_length = strlen(keyvalue);
-		int sent = 0;
-		do {
-			if ((sent = send(newSock, keyvalue, msg_length, 0))==-1) 
-			{
-	    		perror("server: static TCP socket send");
-	    		break;
-			}
-			msg_length -= sent;
-		} while(msg_length > 0);
-	}
-
-	close(newSock);
 	close(listClientSock);
 
 	return 0;
