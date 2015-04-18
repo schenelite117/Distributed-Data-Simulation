@@ -38,6 +38,7 @@ int main()
 	mapInputFile(ifile, keymap);
 
 
+
 	/**
 	 * @brief This socket starter code was taken out of the Beej's tutorial
 	 */
@@ -79,6 +80,9 @@ int main()
 
 		break;
 	}
+
+	// save the port and ip info for cSock
+	struct sockaddr_in* s = (struct sockaddr_in *)p->ai_addr;
 
 	if (p == NULL) 
 	{
@@ -128,7 +132,7 @@ int main()
 			exit(EXIT_FAILURE);
 		}
 		std::cout << "The Client2's port number is " << ntohs(myAddr.sin_port);
-		std::cout << " and the IP address is " << inet_ntoa(myAddr.sin_addr) << std::endl;
+		std::cout << " and the IP address is " << inet_ntoa(s->sin_addr) << std::endl;
 
 		char buf[MAXDATASIZE];
 		for (int i = 0; i < MAXDATASIZE; i++) 
@@ -142,10 +146,10 @@ int main()
 
 		// screen messages after receiving the reply
 		std::cout << "The Client 2 received the value " << val << " from the Server 1 with port number ";
-		std::cout << ntohs(servAddr.sin_port) << " and\nIP address " << inet_ntoa(servAddr.sin_addr) << std::endl;
+		std::cout << ntohs(servAddr.sin_port) << " and\nIP address is " << inet_ntoa(servAddr.sin_addr) << std::endl;
 
 		std::cout << "The Client2's port number is " << ntohs(myAddr.sin_port);
-		std::cout << " and the IP address is " << inet_ntoa(myAddr.sin_addr) << std::endl;
+		std::cout << " and the IP address is " << inet_ntoa(s->sin_addr) << std::endl;
 
 		val.erase(val.begin(), val.begin()+5); // Erase the POST message in front
 

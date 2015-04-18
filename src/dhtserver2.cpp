@@ -109,6 +109,10 @@ int main()
 
 	}
 
+	struct sockaddr_in* s = (struct sockaddr_in *)p->ai_addr;
+	std::cout << "The Server 2 has TCP port number " << ntohs(s->sin_port);
+	std::cout << " and the IP address is " << inet_ntoa(s->sin_addr) << std::endl;
+
 	if (p == NULL) 
 	{
 		fprintf(stderr, "server: failed to bind\n");

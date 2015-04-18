@@ -98,18 +98,22 @@ int main()
 			exit(EXIT_FAILURE);
 		}
 	
-
 		// bind the socket
-		if (bind(listClientSock, servinfo->ai_addr, servinfo->ai_addrlen) == -1)
+		if (bind(listClientSock, p->ai_addr, p->ai_addrlen) == -1)
 		{
 			close(listClientSock);
 			perror("server: static UDP bind");
 			continue;
 		}
-		
+	
+
 		break;
 
 	}
+
+	struct sockaddr_in* s = (struct sockaddr_in *)p->ai_addr;
+	std::cout << "The Server 1 has UDP port number " << ntohs(s->sin_port);
+	std::cout << " and the IP address is " << inet_ntoa(s->sin_addr) << std::endl;
 
 	if (p == NULL) 
 	{
@@ -133,7 +137,7 @@ int main()
 	 */
 
 	// go into a server loop
-
+	int counter = 1;
 	while (1) 
 	{
 		// use recvfrom() to receive any incoming connections 
@@ -145,6 +149,9 @@ int main()
 
 		clientAddrSize = sizeof(clientAddr);
 		recvfrom(listClientSock, buf, BUF_LEN, 0, &clientAddr, &clientAddrSize);
+		s = (struct sockaddr_in *)&clientAddr;
+		std::cout << "The Server 1 has received a request " << buf << " from Client " << counter << " with port number ";
+		std::cout << ntohs(s->sin_port) << " and\nIP address " << inet_ntoa(s->sin_addr) << std::endl;
 
 		std::string key (buf);
 		key.erase(key.begin(), key.begin()+4); //erase the GET message in front
@@ -164,6 +171,10 @@ int main()
 				}
 				msg_length -= sent;
 			} while(msg_length > 0);
+
+			std::cout << "The Server 1 sends the reply " << value << " to Client " << counter << " with port number ";
+			std::cout << ntohs(s->sin_port) << " and\nIP address " << inet_ntoa(s->sin_addr) << std::endl;
+
 		} 
 		else // check server 2 using a TCP connection
 		{ 
@@ -271,6 +282,7 @@ int main()
 				msg_length -= sent;
 			} while(msg_length > 0);
 		}
+		counter++;
 	}
 
 
