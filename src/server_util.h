@@ -11,6 +11,7 @@ void mapInputFile(std::ifstream&, std::map<std::string, std::string>*);
 void error(const char*);
 void outputTest(std::map<std::string, std::string>);
 void *get_in_addr(struct sockaddr*);
+void sigchld_handler(int);
 
 
 /**
@@ -53,6 +54,11 @@ void *get_in_addr(struct sockaddr *sa)
 	{
 		return &(((struct sockaddr_in*)sa)->sin_addr);
 	}
+}
+
+void sigchld_handler(int s)
+{
+	while (waitpid(-1, NULL,WNOHANG) > 0);
 }
 /**
  * end copied from Beej's tutorial

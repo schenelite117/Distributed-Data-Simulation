@@ -58,12 +58,13 @@ std::string userInput(std::map<std::string, std::string>& keymap)
 {
 	std::string input;
 	do {
-		std::cout << "Please Enter Your Search (not case-sensitive):  ";
+		std::cout << "Please Enter Your Search:  ";
 		std::cin >> input;
 		if (keymap.find(input) == keymap.end())
 			std::cout << "Try again. Enter a valid search query.\n" << std::endl;
 	} while (keymap.find(input) == keymap.end());
 
+	return input;
 }
 
 /**

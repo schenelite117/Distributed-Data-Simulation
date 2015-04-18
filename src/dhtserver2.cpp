@@ -9,9 +9,9 @@
 
 
 #include <stdlib.h>
-#include <cstdio>
+#include <stdio.h>
 #include <unistd.h>
-#include <cerrno>
+#include <errno.h>
 #include <cstring>
 #include <netdb.h>
 #include <sys/types.h>
@@ -19,6 +19,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <sys/wait.h>
+#include <signal.h>
 
 #include "server_util.h"
 
@@ -72,9 +73,7 @@ int main()
 	for (p = servinfo; p != NULL; p = p->ai_next) 
 	{
 		// create the socket file descriptor
-		listClientSock = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
-
-		if ((listClientSock = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol)) == -1) 
+		if ((listClientSock = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) 
 		{
 			perror("server: socket");
 			continue; // if invalid socket, keep looping
@@ -92,7 +91,7 @@ int main()
 		// bind the socket
 		if (bind(listClientSock, servinfo->ai_addr, servinfo->ai_addrlen) == -1)
 		{
-			close(sockfd);
+			close(listClientSock);
 			perror("server: bind");
 			continue;
 		}
@@ -103,7 +102,7 @@ int main()
 
 	if (p == NULL) 
 	{
-		fprintf(stderr, "server: failed to bind\n", );
+		fprintf(stderr, "server: failed to bind\n");
 		return 2;
 	}
 	freeaddrinfo(servinfo);

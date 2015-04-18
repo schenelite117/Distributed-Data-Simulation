@@ -14,7 +14,7 @@ all: server1 server2 server3 client1 client2
 	# ./server1
 	# ./server2
 	# ./server3
-	./client1
+	# ./client1
 	# ./client2
 
 # SERVER 1  ============================================
