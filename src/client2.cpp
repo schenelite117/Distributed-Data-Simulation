@@ -120,13 +120,14 @@ int main()
 	serverIP = (struct in_addr **)servhost->h_addr_list;
 	std::cout << " and\nIP address " << inet_ntoa(*serverIP[0]) << std::endl;
 
-	// get client's info
+	// get client's info, reused from project pdf
 	int stat = getsockname(cSock, (struct sockaddr *)&myAddr, &myAddrSize);
 	if (stat == -1)
 	{
 		perror("getsockname");
 		exit(EXIT_FAILURE);
 	}
+	// end reused from project pdf
 	std::cout << "The Client2's port number is " << ntohs(myAddr.sin_port);
 	std::cout << " and the IP address is " << inet_ntoa(s->sin_addr) << std::endl;
 

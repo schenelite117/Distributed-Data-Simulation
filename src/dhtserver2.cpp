@@ -214,7 +214,7 @@ int main()
 				// connect to the first socket description available
 				if ((servSock = socket(p2->ai_family, p2->ai_socktype, p2->ai_protocol)) == -1) 
 				{
-					perror("server: TCP socket");
+					perror("server: dyn TCP socket");
 					continue; // if invalid socket, keep looping
 				}
 			
@@ -223,7 +223,7 @@ int main()
 				if (connect(servSock, serverinfo->ai_addr, serverinfo->ai_addrlen) == -1)
 				{
 					close(servSock);
-					perror("server: TCP socket connect");
+					perror("server: dyn TCP socket connect");
 					continue;
 				}
 				break;
@@ -231,7 +231,7 @@ int main()
 
 			if (p == NULL) 
 			{
-				fprintf(stderr, "server: TCP socket failed to connect\n");
+				fprintf(stderr, "server: dyn TCP socket failed to connect\n");
 				return 2;
 			}
 
@@ -250,21 +250,23 @@ int main()
 			do {
 				if ((sent = send(servSock, keyvalue, msg_length, 0))==-1) 
 				{
-		    		perror("server: TCP socket send");
+		    		perror("server: dyn TCP socket send");
 		    		break;
 				}
 				msg_length -= sent;
 			} while(msg_length > 0);
 
-			// send to server 3
+			// send to server 3, reused from project pdf
 			stat = getsockname(servSock, (struct sockaddr *)&myAddr, &myAddrSize);
 			if (stat == -1)
 			{
 				perror("getsockname");
 				exit(EXIT_FAILURE);
 			}
+			// end reused from project pdf
 			std::cout << "The Server 2 sends the request " << fwKey << " to the Server 3.\nThe TCP port number is ";
 			std::cout << ntohs(myAddr.sin_port) << " and IP address " << inet_ntoa(s->sin_addr) << std::endl;
+
 
 			freeaddrinfo(serverinfo);
 
@@ -293,7 +295,7 @@ int main()
 			do {
 				if ((sent = send(newSock, buf, msg_length, 0))==-1) 
 				{
-		    		perror("server: dyn TCP socket send");
+		    		perror("server: dyn TCP socket to server 1");
 		    		break;
 				}
 				msg_length -= sent;

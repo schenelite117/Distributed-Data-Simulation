@@ -245,13 +245,14 @@ int main()
 				msg_length -= sent;
 			} while(msg_length > 0);
 
-			// send to server 2
+			// send to server 2, reused from project pdf
 			stat = getsockname(servSock, (struct sockaddr *)&myAddr, &myAddrSize);
 			if (stat == -1)
 			{
 				perror("getsockname");
 				exit(EXIT_FAILURE);
 			}
+			// end reused from project pdf
 			s = (struct sockaddr_in *)&myAddr;
 			std::cout << "The Server 1 sends the request " << fwKey << " to the Server 2.\nThe TCP port number is ";
 			std::cout << ntohs(s->sin_port) << " and IP address " << inet_ntoa(s->sin_addr) << std::endl;
