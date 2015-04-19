@@ -63,7 +63,7 @@ int main()
 	memset (&servHints, 0, sizeof servHints);
 
 	hints.ai_family = AF_INET; //IPv4
-	hints.ai_socktype = SOCK_STREAM; // UDP
+	hints.ai_socktype = SOCK_STREAM; // TCP
 
 	servHints.ai_family = AF_INET;
 	servHints.ai_socktype = SOCK_STREAM; // TCP
@@ -110,6 +110,7 @@ int main()
 
 	}
 
+	// boot up
 	struct sockaddr_in* s = (struct sockaddr_in *)p->ai_addr;
 	std::cout << "The Server 2 has TCP port number " << ntohs(s->sin_port);
 	std::cout << " and the IP address is " << inet_ntoa(s->sin_addr) << std::endl;
@@ -163,8 +164,9 @@ int main()
 		clientAddrSize = sizeof(clientAddr);
 		recv(newSock, buf, BUF_LEN, 0);
 
+		s = (struct sockaddr_in *)&newSockAddr;
 		std::cout << "\nThe Server 2 has received a request " << buf << " from the Server 1 with port number ";
-		std::cout << ntohs(newSockAddr.sin_port) << " and\nIP address " << inet_ntoa(newSockAddr.sin_addr) << std::endl;
+		std::cout << ntohs(s->sin_port) << " and\nIP address " << inet_ntoa(s->sin_addr) << std::endl;
 
 		std::string key (buf);
 		key.erase(key.begin(), key.begin()+4); //erase the GET message in front
@@ -238,6 +240,7 @@ int main()
 	 		*/
 
 			// forwarding GET request to server 2
+			
 			std::string fwKey = "GET " + key;
 			const char* keyvalue = fwKey.c_str() + '\0';
 
@@ -260,9 +263,8 @@ int main()
 				perror("getsockname");
 				exit(EXIT_FAILURE);
 			}
-			s = (struct sockaddr_in *)serverinfo->ai_addr;
 			std::cout << "The Server 2 sends the request " << fwKey << " to the Server 3.\nThe TCP port number is ";
-			std::cout << ntohs(s->sin_port) << " and IP address " << inet_ntoa(s->sin_addr) << std::endl;
+			std::cout << ntohs(myAddr.sin_port) << " and IP address " << inet_ntoa(s->sin_addr) << std::endl;
 
 			freeaddrinfo(serverinfo);
 
@@ -276,9 +278,9 @@ int main()
 			std::string val(buf);
 
 
-			s = (struct sockaddr_in *)&clientAddr;
-			std::cout << "The Server 2 has received the value " << val << " from the Server 3 with port number ";
-			std::cout << ntohs(myAddr.sin_port) << " and\nIP address " << inet_ntoa(s->sin_addr) << std::endl;
+			s = (struct sockaddr_in *)serverinfo->ai_addr;
+			std::cout << "The Server 2 has received the value " << buf << " from the Server 3 with port number ";
+			std::cout << ntohs(s->sin_port) << " and\nIP address " << inet_ntoa(s->sin_addr) << std::endl;
 
 			val.erase(val.begin(), val.begin()+5); // Erase the POST message in front
 
@@ -296,6 +298,9 @@ int main()
 				}
 				msg_length -= sent;
 			} while(msg_length > 0);
+			s = (struct sockaddr_in *)&newSockAddr;
+			std::cout << "The Server 2 sends the reply " << buf << " to the Server 1 with port number ";
+			std::cout << ntohs(s->sin_port) << " and\nIP address " << inet_ntoa(s->sin_addr) << std::endl;
 		}
 		close(newSock);
 	}

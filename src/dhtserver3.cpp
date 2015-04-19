@@ -154,7 +154,9 @@ int main()
 		clientAddrSize = sizeof(clientAddr);
 		recv(newSock, buf, BUF_LEN, 0);
 
-		std::cout << buf << std::endl;
+		s = (struct sockaddr_in *)&clientAddr;
+		std::cout << "\nThe Server 3 has received a request " << buf << " from the Server 2 with port number ";
+		std::cout << ntohs(s->sin_port) << " and\nIP address " << inet_ntoa(s->sin_addr) << std::endl;
 
 		std::string key (buf);
 		key.erase(key.begin(), key.begin()+4); //erase the GET message in front
@@ -174,6 +176,8 @@ int main()
 				}
 				msg_length -= sent;
 			} while(msg_length > 0);
+			std::cout << "The Server 3 sends the reply " << value << " to the Server 2 with port number ";
+			std::cout << ntohs(s->sin_port) << " and\nIP address " << inet_ntoa(s->sin_addr) << std::endl;
 		}
 		close(newSock);
 	}

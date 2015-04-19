@@ -48,7 +48,7 @@ int main()
 	struct addrinfo hints, *servinfo; // for static UDP socket
 	struct addrinfo servHints, *serverinfo; // for dynamic TCP socket
 	struct sockaddr clientAddr; // for storing client info socket
-	struct sockaddr_in myAddr;
+	struct sockaddr_storage myAddr;
 	struct sigaction sa; // for removing zombie processes
 	socklen_t clientAddrSize;
 	socklen_t myAddrSize;
@@ -252,8 +252,9 @@ int main()
 				perror("getsockname");
 				exit(EXIT_FAILURE);
 			}
+			s = (struct sockaddr_in *)&myAddr;
 			std::cout << "The Server 1 sends the request " << fwKey << " to the Server 2.\nThe TCP port number is ";
-			std::cout << ntohs(myAddr.sin_port) << " and IP address " << inet_ntoa(s->sin_addr) << std::endl;
+			std::cout << ntohs(s->sin_port) << " and IP address " << inet_ntoa(s->sin_addr) << std::endl;
 
 			freeaddrinfo(serverinfo);
 
