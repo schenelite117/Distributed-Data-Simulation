@@ -20,7 +20,7 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 
-#include "client_util.h"
+#include "client2.h"
 
 #define MAXDATASIZE 100 // max number of bytes we can get at once
 #define SERVER_PORT "21063"
@@ -92,69 +92,64 @@ int main()
 	/**
 	 * @ end of code from Beej's tutorial
 	 */
-	while (1) 
-	{
-		std::string input = userInput(keymap);
-		if (input == "0")
-			break;
-		std::cout << "The Client 2 has received a request with search word " << input;
-		std::cout << ", which maps to key " << keymap.find(input)->second << "." << std::endl;
+	std::string input = userInput(keymap);
+	std::cout << "The Client 2 has received a request with search word " << input;
+	std::cout << ", which maps to key " << keymap.find(input)->second << "." << std::endl;
 
-		input = "GET " + keymap.find(input)->second;
-		const char* keyvalue = input.c_str() + '\0';
+	input = "GET " + keymap.find(input)->second;
+	const char* keyvalue = input.c_str() + '\0';
 
-		int msg_length = strlen(keyvalue);
-		int sent = 0;
+	int msg_length = strlen(keyvalue);
+	int sent = 0;
 
-		do {
-			if ((sent = sendto(cSock, keyvalue, msg_length, 0, p->ai_addr,p->ai_addrlen))==-1) 
-			{
-	    		perror("client: sendto");
-	    		break;
-			}
-			msg_length -= sent;
-		} while(msg_length > 0);
-		std::cout << "The Client 2 sends the request " << input << " to the Server 1 with port number " << SERVER_PORT;
-	
-		// get the host info
-		if ((servhost = gethostbyname("nunki.usc.edu")) == NULL) {  
-        	herror("gethostbyname");
-        	return 2;
-    	}
-		serverIP = (struct in_addr **)servhost->h_addr_list;
-		std::cout << " and\nIP address " << inet_ntoa(*serverIP[0]) << std::endl;
-
-		// get client's info
-		int stat = getsockname(cSock, (struct sockaddr *)&myAddr, &myAddrSize);
-		if (stat == -1)
+	do {
+		if ((sent = sendto(cSock, keyvalue, msg_length, 0, p->ai_addr,p->ai_addrlen))==-1) 
 		{
-			perror("getsockname");
-			exit(EXIT_FAILURE);
+    		perror("client: sendto");
+    		break;
 		}
-		std::cout << "The Client2's port number is " << ntohs(myAddr.sin_port);
-		std::cout << " and the IP address is " << inet_ntoa(s->sin_addr) << std::endl;
+		msg_length -= sent;
+	} while(msg_length > 0);
+	std::cout << "The Client 2 sends the request " << input << " to the Server 1 with port number " << SERVER_PORT;
 
-		char buf[MAXDATASIZE];
-		for (int i = 0; i < MAXDATASIZE; i++) 
-		{
-			buf[i] = '\0'; // overwrite buffer with all null characters
-		}
-
-		servAddrSize = sizeof(servAddr);
-		recvfrom(cSock, buf, MAXDATASIZE, 0, (struct sockaddr *)&servAddr, &servAddrSize);
-		std::string val(buf);
-
-		// screen messages after receiving the reply
-		std::cout << "The Client 2 received the value " << val << " from the Server 1 with port number ";
-		std::cout << ntohs(servAddr.sin_port) << " and\nIP address is " << inet_ntoa(servAddr.sin_addr) << std::endl;
-
-		std::cout << "The Client2's port number is " << ntohs(myAddr.sin_port);
-		std::cout << " and the IP address is " << inet_ntoa(s->sin_addr) << std::endl;
-
-		val.erase(val.begin(), val.begin()+5); // Erase the POST message in front
-
-		std::cout << "The requested value is " << val << "\n" << std::endl;
+	// get the host info
+	if ((servhost = gethostbyname("nunki.usc.edu")) == NULL) {  
+    	herror("gethostbyname");
+    	return 2;
 	}
+	serverIP = (struct in_addr **)servhost->h_addr_list;
+	std::cout << " and\nIP address " << inet_ntoa(*serverIP[0]) << std::endl;
+
+	// get client's info
+	int stat = getsockname(cSock, (struct sockaddr *)&myAddr, &myAddrSize);
+	if (stat == -1)
+	{
+		perror("getsockname");
+		exit(EXIT_FAILURE);
+	}
+	std::cout << "The Client2's port number is " << ntohs(myAddr.sin_port);
+	std::cout << " and the IP address is " << inet_ntoa(s->sin_addr) << std::endl;
+
+	char buf[MAXDATASIZE];
+	for (int i = 0; i < MAXDATASIZE; i++) 
+	{
+		buf[i] = '\0'; // overwrite buffer with all null characters
+	}
+
+	servAddrSize = sizeof(servAddr);
+	recvfrom(cSock, buf, MAXDATASIZE, 0, (struct sockaddr *)&servAddr, &servAddrSize);
+	std::string val(buf);
+
+	// screen messages after receiving the reply
+	std::cout << "The Client 2 received the value " << val << " from the Server 1 with port number ";
+	std::cout << ntohs(servAddr.sin_port) << " and\nIP address is " << inet_ntoa(servAddr.sin_addr) << std::endl;
+
+	std::cout << "The Client2's port number is " << ntohs(myAddr.sin_port);
+	std::cout << " and the IP address is " << inet_ntoa(s->sin_addr) << std::endl;
+
+	val.erase(val.begin(), val.begin()+5); // Erase the POST message in front
+
+	std::cout << "The requested value is " << val << "\n" << std::endl;
 
 	freeaddrinfo(servinfo);
 	close(cSock);

@@ -1,5 +1,5 @@
-#ifndef SERVER_UTIL
-#define SERVER_UTIL
+#ifndef DHTSERVER2
+#define DHTSERVER2
 
 #include <iostream>
 #include <string>

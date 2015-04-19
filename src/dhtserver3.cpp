@@ -21,7 +21,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-#include "server_util.h"
+#include "dhtserver3.h"
 
 #define LISTEN_PORT "23063" // port client hosts will be connecting to
 #define BACKLOG 10

@@ -21,7 +21,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-#include "server_util.h"
+#include "dhtserver1.h"
 
 /** All the defines **/
 #define LISTEN_PORT "21063" // port client hosts will be connecting to

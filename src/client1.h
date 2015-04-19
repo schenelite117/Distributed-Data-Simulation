@@ -1,5 +1,5 @@
-#ifndef CLIENT_UTIL
-#define CLIENT_UTIL
+#ifndef CLIENT1
+#define CLIENT1
 
 #include <iostream>
 #include <string>

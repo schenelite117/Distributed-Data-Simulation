@@ -21,7 +21,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-#include "server_util.h"
+#include "dhtserver2.h"
 
 #define LISTEN_PORT "22063" // port client hosts will be connecting to
 #define SERV_PORT "23063" // port to connect to server 3
@@ -240,7 +240,7 @@ int main()
 	 		*/
 
 			// forwarding GET request to server 2
-			
+
 			std::string fwKey = "GET " + key;
 			const char* keyvalue = fwKey.c_str() + '\0';
 
