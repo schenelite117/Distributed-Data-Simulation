@@ -1,7 +1,7 @@
-###Distributed Database Simulation README
+#Distributed Database Simulation README
 
 ***************************************************************
-##Overview:
+###Overview:
 
 This project was completed to fulfill the project requirements for the final project of USC's
 EE450 curriculum. We were required to demonstrate knowledge of socket programming by developing
@@ -18,7 +18,7 @@ pair mapping the solution received with the query that was submitted. Then it wi
 back to the client. If a solution is not found at Server 3, the client will also be notified.
 
 ***************************************************************
-##1. What have I done during this assignment?
+###1. What have I done during this assignment?
 
 + Created a distributed database model in C++ using C socket programming libraries
 + Conducted client-server communications using UDP sockets
@@ -29,9 +29,9 @@ back to the client. If a solution is not found at Server 3, the client will also
 + IP address has been set to localhost so that this simulation can run on any machine
 
 ***************************************************************
-##2. What does this code do?
+###2. What does this code do?
 
-#dhtserver1.cpp + dhtserver1.h:
+####dhtserver1.cpp + dhtserver1.h:
 This code takes all the inputs from the textfile and creates a map to hold all of the values. 
 It also creates all the sockets needed to run the designated server including the UDP socket 
 and the dynamic TCP sockets to communicate with Server 2. It can communicate with the clients
@@ -40,19 +40,19 @@ Also it will count how many clients have connected to the server in the same ses
 the on-screen messages and initiates communication with Server 2. It will run in an infinite 
 loop until the user types Ctrl+C to end the program. Will close its own sockets.
 
-#dhtserver2.cpp + dhtserver2.h:
+####dhtserver2.cpp + dhtserver2.h:
 This code also puts all the key value pairs from the textfile into a map for fast searching 
 later. It creates the necessary sockets to return values to Server 1 or communicate with Server
 3. It outputs the on-screen messages and adds new entries to the map as Server 3 replies with 
 values that were not originally in Server 2's map. It also runs in an infinite loop. Will close
 its own sockets.
 
-#dhtserver3.cpp + dhtserver3.h:
+####dhtserver3.cpp + dhtserver3.h:
 This code just has to create the necessary sockets to return values to Server 2 and output 
 on-screen messages as it does its work. It also runs in an infinite loop. Will close its own
 sockets.
 
-#client1.cpp + client1.h:
+####client1.cpp + client1.h:
 The client creates the one UDP socket it needs to communicate with the designated Server 1. It
 also reads in the textfile and creates a map with all of those search terms and keys paired
 as key-value pairs inside the map. It will be able to take in the user input and find the correct
@@ -60,14 +60,14 @@ search term in the map and retrieve the right key to use to query Server 1. It w
 to receive the values that are returned by the Server 1 and output all the required on-screen
 messages while it is performing its functions. This code will run once and then terminate.
 
-#client2.cpp + client2.h:
+####client2.cpp + client2.h:
 This code is functionally identical to client1.
 
 Additionally, all of the code includes error-checking wherever necessary.
 
 
 ***************************************************************
-##3. How to run this program?
+###3. How to run this program?
 I have included a makefile that will be able to help you compile the code. Run the makefile by typing:
 make
 
@@ -91,13 +91,13 @@ To remove the executables for a clean build, type:
 This will delete all the executables and then build them again.
 
 ***************************************************************
-##4. Format of all messages exchanged.
+###4. Format of all messages exchanged.
 
 The libraries for socket programming are all using C code and not C++ so they take inputs of 
 char arrays to send and receive messages between servers.
 
 ***************************************************************
-##5. Where does this project fail?
+###5. Where does this project fail?
 
 I have tested this project repeatedly and while there might be cases that I have not considered that
 would cause this project to fail to meet the project specs, I have not encountered these errors yet. 
@@ -107,7 +107,7 @@ server machines. In order to test this simulation on another machine, just repla
 the address of that machine.
 
 ***************************************************************
-##6. Reused Code?
+###6. Reused Code?
 
 I followed Beej's tutorial to create the sockets in all the cpp files when using getaddrinfo(). I have
 marked these large sections off with comments as seen below:
@@ -124,7 +124,7 @@ You will find these sections in all of the .cpp and .h files. The .cpp files wil
 creating the sockets (getaddrinfo, memset, socket, bind, sigaction, connect, setsockopt). I also reused 
 the getsockname code from the project pdf. 
 
-***************************************************************
+
 
 
 
