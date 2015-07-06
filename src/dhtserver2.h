@@ -56,6 +56,13 @@ void *get_in_addr(struct sockaddr *sa)
 	}
 }
 
+// output the error if one occurs then quits the program
+void error(const char* msg)
+{
+	std::cerr << msg << std::endl;
+	exit(EXIT_FAILURE);
+}
+
 void sigchld_handler(int s)
 {
 	while (waitpid(-1, NULL,WNOHANG) > 0);

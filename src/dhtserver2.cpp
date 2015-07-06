@@ -68,7 +68,7 @@ int main()
 	servHints.ai_family = AF_INET;
 	servHints.ai_socktype = SOCK_STREAM; // TCP
 
-	int status = getaddrinfo("nunki.usc.edu", LISTEN_PORT, &hints, &servinfo);
+	int status = getaddrinfo("localhost", LISTEN_PORT, &hints, &servinfo);
 
 	// if there's an error with getaddrinfo it will return non-zero value
 	if (status != 0)
@@ -178,6 +178,7 @@ int main()
 			const char* keyvalue = value.c_str();
 			int msg_length = strlen(keyvalue);
 			int sent = 0;
+			// return value back to server 1
 			do {
 				if ((sent = send(newSock, keyvalue, msg_length, 0))==-1) 
 				{
@@ -196,7 +197,7 @@ int main()
 	 		* @brief This socket starter code was taken out of the Beej's tutorial
 	 		* This creates the TCP socket for server 2
 	 		*/
-			int stat = getaddrinfo("nunki.usc.edu", SERV_PORT, &servHints, &serverinfo);
+			int stat = getaddrinfo("localhost", SERV_PORT, &servHints, &serverinfo);
 
 			// if there's an error with getaddrinfo it will return non-zero value
 			if (stat != 0)
@@ -256,7 +257,7 @@ int main()
 				msg_length -= sent;
 			} while(msg_length > 0);
 
-			// send to server 3, reused from project pdf
+			// get socket port number reused from project pdf
 			stat = getsockname(servSock, (struct sockaddr *)&myAddr, &myAddrSize);
 			if (stat == -1)
 			{

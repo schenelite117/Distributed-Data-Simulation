@@ -59,7 +59,7 @@ int main()
 	hints.ai_family = AF_INET; //IPv4
 	hints.ai_socktype = SOCK_STREAM; // TCP
 
-	int status = getaddrinfo("nunki.usc.edu", LISTEN_PORT, &hints, &servinfo);
+	int status = getaddrinfo("localhost", LISTEN_PORT, &hints, &servinfo);
 
 	// if there's an error with getaddrinfo it will return non-zero value
 	if (status != 0)
@@ -144,7 +144,7 @@ int main()
 			perror("accept");
 		}
 
-		// recv from server 1 after accepting
+		// recv from server 2 after accepting
 		char buf[BUF_LEN];
 		for (int i = 0; i < BUF_LEN; i++) 
 		{
@@ -161,13 +161,14 @@ int main()
 		std::string key (buf);
 		key.erase(key.begin(), key.begin()+4); //erase the GET message in front
 		
-		// if can find the key in server 2
+		// if can find the key in server 3
 		if (keymap.find(key) != keymap.end())
 		{
 			std::string value = "POST " + keymap.find(key)->second;
 			const char* keyvalue = value.c_str();
 			int msg_length = strlen(keyvalue);
 			int sent = 0;
+			// return value back to server 2
 			do {
 				if ((sent = send(newSock, keyvalue, msg_length, 0))==-1) 
 				{

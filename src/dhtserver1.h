@@ -55,6 +55,12 @@ void *get_in_addr(struct sockaddr *sa)
 		return &(((struct sockaddr_in*)sa)->sin_addr);
 	}
 }
+// output the error if one occurs then quits the program
+void error(const char* msg)
+{
+	std::cerr << msg << std::endl;
+	exit(EXIT_FAILURE);
+}
 
 void sigchld_handler(int s)
 {

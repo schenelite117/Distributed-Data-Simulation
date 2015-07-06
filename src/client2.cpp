@@ -60,7 +60,7 @@ int main()
 	hints.ai_socktype = SOCK_DGRAM; // UDP	
 
 	// outputs linked list of sockaddr structures that can create a socket from and outputs to servinfo
-	int status = getaddrinfo("nunki.usc.edu", SERVER_PORT, &hints, &servinfo);
+	int status = getaddrinfo("localhost", SERVER_PORT, &hints, &servinfo);
 
 	if (status != 0)	
 	{
@@ -102,6 +102,7 @@ int main()
 	int msg_length = strlen(keyvalue);
 	int sent = 0;
 
+	// send message over UDP to server 1 
 	do {
 		if ((sent = sendto(cSock, keyvalue, msg_length, 0, p->ai_addr,p->ai_addrlen))==-1) 
 		{
@@ -113,7 +114,7 @@ int main()
 	std::cout << "The Client 2 sends the request " << input << " to the Server 1 with port number " << SERVER_PORT;
 
 	// get the host info
-	if ((servhost = gethostbyname("nunki.usc.edu")) == NULL) {  
+	if ((servhost = gethostbyname("localhost")) == NULL) {  
     	herror("gethostbyname");
     	return 2;
 	}

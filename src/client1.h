@@ -45,12 +45,7 @@ void outputTest(std::map<std::string, std::string>& keymap)
 
 }
 
-// output the error if one occurs then quits the program
-void error(const char* msg)
-{
-	std::cerr << msg << std::endl;
-	exit(EXIT_FAILURE);
-}
+
 
 // get a search term from the user and retrieve the respective key value 
 // associated with the term
@@ -69,6 +64,13 @@ std::string userInput(std::map<std::string, std::string>& keymap)
 /**
  * copied from Beej's tutorial
  */
+// output the error if one occurs then quits the program
+void error(const char* msg)
+{
+	std::cerr << msg << std::endl;
+	exit(EXIT_FAILURE);
+}
+ 
 // get sockaddr, IPv4
 void *get_in_addr(struct sockaddr *sa)
 {
