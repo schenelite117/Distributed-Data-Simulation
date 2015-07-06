@@ -89,7 +89,8 @@ remove the zombie processes:
 ps –aux | grep <your username>
 kill -9 <process number>
 
-The clients will run once and then terminate automatically. 
+The clients will run once and then terminate automatically. Use the server#.txt for a list of acceptable 
+keys to query.
 
 To remove the executables for a clean build, type:
 'make clean'
