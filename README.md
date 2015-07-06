@@ -69,7 +69,7 @@ Additionally, all of the code includes error-checking wherever necessary.
 ***************************************************************
 ###3. How to run this program?
 I have included a makefile that will be able to help you compile the code. Run the makefile by typing:
-make
+'make'
 
 The makefile will build 5 executables that you run as follows:
 ./server1
@@ -78,11 +78,18 @@ The makefile will build 5 executables that you run as follows:
 ./client1
 ./client2
 
-The names are pretty self-explanatory and if you wanted to run Server 1, just type ./server1. I have
-all my source code in the folder /src and all the input files in the folder /input_files. Please do
-not move any of these folders or the files that they contain from their places as this will cause 
-the makefile to fail. The servers will all run in infinite loops until the user decides to terminate
-them by using Ctrl+C. The clients will run once and then terminate automatically. 
+In three separate terminal processes, run ./server1, ./server2, and ./server3.
+
+
+The servers will all run continuously until the user decides to terminatethem by using Ctrl+C. If the 
+user doesn't terminate these server processes when finished with the simulation, they will become zombie
+processes and be destroyed when the user reboots the machine. Otherwise, use the following commands to 
+remove the zombie processes:
+
+ps –aux | grep <your username>
+kill -9 <process number>
+
+The clients will run once and then terminate automatically. 
 
 To remove the executables for a clean build, type:
 'make clean'
