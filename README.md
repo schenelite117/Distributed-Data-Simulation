@@ -1,3 +1,4 @@
+Stephen Chen
 ##Distributed Database Simulation README
 
 ***************************************************************
